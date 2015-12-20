@@ -4,6 +4,9 @@ HUEGELY_TO_HUE_MAPPING = {
     'brightness': 'bri',
     'saturation': 'sat',
     'temperature': 'ct',
+    'is_reachable': 'reachable',
+    'coordinates': 'xy',
+    'color_mode': 'colormode'
 }
 
 # Maps hue attribute names to huegely ones (reverse mapping of the above)

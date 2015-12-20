@@ -38,7 +38,13 @@ class Dimmer(metaclass=ABCMeta):
             Returns new brightness value.
         """
         step = max(0, min(254, step))
-        return self.state(on=True, brighter=step)['brightness']
+
+        try:
+            return self.state(brighter=step)['brightness']
+        except exceptions.HueError as e:
+            if e.error_code == exceptions.CANNOT_MODIFY_WHILE_OFF:
+                return self.state(on=True, brighter=step)['brightness']
+            raise
 
     def darker(self, step=25):
         """ Makes the light gradually darker. Turns off the lamp if the brightness goes down to 0.
@@ -86,9 +92,59 @@ class Dimmer(metaclass=ABCMeta):
         """
         return self._set_brightness(brightness=brightness) if brightness is not None else self._get_brightness()
 
+    def _set_alert(self, alert):
+        """ Sets alert to new value. The only currently supported alerts are 'none' and 'select'.
+
+            Returns new alert value.
+        """
+        if alert not in ['none', 'select']:
+            raise exceptions.HueError('Cannot set alert to {}. Only "none" and "select" are supported.', device=self)
+        return self.state(alert=alert)['alert']
+
+    def _get_alert(self):
+        """ Gets current alert value ('none' or 'select'). """
+        return self.state()['alert']
+
+    def alert(self, alert=None):
+        """ Returns the current alert value if called without *alert* argument,
+            otherwise sets and returns the new alert.
+
+            The only currently supported alerts are 'none' and 'select'.
+
+            Note that alerts currently seem to be broken, or at least weird, in the hue api.
+            Setting a select alert will blink a light once, but the alert state will stay on "select" until manually reset.
+        """
+        return self._set_alert(alert=alert) if alert is not None else self._get_alert()
+
 
 class ColorController(metaclass=ABCMeta):
     """ Abstract base class for colored lights. """
+
+    def _set_coordinates(self, coordinates):
+        """ Sets coordinates to new value (each 0 - 1). Values are clamped to valid range.
+            Returns new coordinate values.
+        """
+        x = max(0, min(1, coordinates[0]))
+        y = max(0, min(1, coordinates[1]))
+        return self.state(coordinates=(x, y))['coordinates']
+
+    def _get_coordinates(self):
+        """ Gets current coordinate values (each 0 - 1). """
+        return self.state()['coordinates']
+
+    def coordinates(self, coordinates=None):
+        """ Returns the current coolor coordinates value if called without *coordinates* argument,
+            otherwise sets and returns the new value.
+
+            *coordinates* is expected to be in the format of [x (float), y (float)].
+
+            The valid range for each coordinate is 0 - 1, passed-in values are clamped to that range.
+
+            Note that each lamp's color space is different and will choose the color coordinate
+            they can reproduce closest to the requested value.
+            See http://www.developers.meethue.com/documentation/core-concepts for details.
+        """
+        return self._set_coordinates(coordinates=coordinates) if coordinates is not None else self._get_coordinates()
 
     def _set_hue(self, hue):
         """ Sets hue to new value (0-65534). Values are cycled, i.e. 65535 == 0.
@@ -130,6 +186,35 @@ class ColorController(metaclass=ABCMeta):
             The valid range for saturation is 0 - 254, passed-in values are clamped to that range.
         """
         return self._set_saturation(saturation=saturation) if saturation is not None else self._get_saturation()
+
+    def _set_effect(self, effect):
+        """ Sets effect to new value. The only currently supported effects are 'none' and 'colorloop'.
+
+            Returns new effect value.
+        """
+        if effect not in ['none', 'colorloop']:
+            raise exceptions.HueError('Cannot set effect to {}. Only "none" and "colorloop" are supported.', device=self)
+        return self.state(effect=effect)['effect']
+
+    def _get_effect(self):
+        """ Gets current effect value ('none' or 'colorloop'). """
+        return self.state()['effect']
+
+    def effect(self, effect=None):
+        """ Returns the current effect value if called without *effect* argument,
+            otherwise sets and returns the new effect.
+
+            The only currently supported effects are 'none' and 'colorloop'.
+        """
+        return self._set_effect(effect=effect) if effect is not None else self._get_effect()
+
+    def color_mode(self):
+        """ Returns the current color_mode value (xy or ct).
+
+            Note that this has only been tested on an ExtendedColorLight, because I don't have others.
+            It might not work on ColorLights or ColorTemperatureLights.
+        """
+        return self.state()['color_mode']
 
 
 class TemperatureController(metaclass=ABCMeta):
