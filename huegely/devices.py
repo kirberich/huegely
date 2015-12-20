@@ -1,9 +1,12 @@
 from abc import ABCMeta
 from requests import request
 
-from . import exceptions
-from .utils import parse_attribute_from_url
-from .features import (
+from huegely import (
+    constants,
+    exceptions,
+    utils
+)
+from huegely.features import (
     Dimmer,
     ColorController,
     TemperatureController,
@@ -14,6 +17,7 @@ class Light(metaclass=ABCMeta):
     """ Abstract base class for all lights.
         All lights inherit from ``Light`` and any appropriate feature classes.
     """
+    _state_mapping = {}
 
     def __init__(self, bridge, light_id, name=None):
         if type(self) is Light:
@@ -37,7 +41,14 @@ class Light(metaclass=ABCMeta):
 
     def _set_state(self, **state):
         url = self.light_url + '/state'
-        return self.bridge.make_request(url, method='PUT', **state)
+
+        # Convert huegely-named state attributes to hue api naming scheme
+        state = utils.huegely_to_hue_names(state)
+
+        response = self.bridge.make_request(url, method='PUT', **state)
+
+        # Convert hue api names back to huegely names
+        return utils.hue_to_huegely_names(response)
 
     def _get_state(self):
         response = self.bridge.make_request(self.light_url)
@@ -47,15 +58,18 @@ class Light(metaclass=ABCMeta):
         # but that would make initialisation extremely expensive.
         self._name = response.get('name', None) or self._name
 
-        return response['state']
+        # Convert hue-named state attribute to huegely naming scheme
+        state = utils.hue_to_huegely_names(response['state'])
+
+        return state
 
     def state(self, **state):
         """ Gets or sets state attributes on a light. Call this without any arguments to get the
             entire state of the light as reported by the Hue bridge.
 
-            Pass in any amount of state attributes to update them, e.g. on=True, bri=100.
+            Pass in any amount of state attributes to update them, e.g. on=True, brighter=50.
 
-            Returns a dictionary of successfully updated attributes in the format of ``{'bri': 100, 'on': True}``
+            Returns a dictionary of successfully updated attributes in the format of ``{'brightness': 100, 'on': True}``
         """
         return self._set_state(**state) if state else self._get_state()
 
@@ -74,20 +88,23 @@ class Light(metaclass=ABCMeta):
         """
         return self._set_name(name=name) if name is not None else self._get_name()
 
+    def is_reachable(self):
+        """ Returns True if the light is currently reachable, False otherwise. """
+        return self._set_state('is_reachable')['is_reachable']
 
-class DimmableLight(Light, Dimmer):
+class DimmableLight(Dimmer, Light):
     pass
 
 
-class ColorLight(Light, Dimmer, ColorController):
+class ColorLight(Dimmer, ColorController, Light):
     pass
 
 
-class ColorTemperatureLight(Light, Dimmer, TemperatureController):
+class ColorTemperatureLight(Dimmer, TemperatureController, Light):
     pass
 
 
-class ExtendedColorLight(Light, Dimmer, TemperatureController, ColorController):
+class ExtendedColorLight(Dimmer, TemperatureController, ColorController, Light):
     pass
 
 
@@ -123,7 +140,8 @@ class Bridge(object):
             you can pass in "full_url" to bypass this behaviour.
 
             For POST/PUT requests:
-            Returns a processed dictionary of updated attributes/values like ``{'bri': 100, 'on': True, 'name': 'new name'}``.
+            Returns a processed dictionary of updated attributes/values like
+            ``{'brightness': 100, 'on': True, 'name': 'new name'}``.
 
             For GET requests:
             Returns the unmodified api response.
@@ -131,6 +149,7 @@ class Bridge(object):
             If any updates fail, a HueError is raised.
         """
         url = full_url or self.base_url + path
+
         response = request(method, url, json=data, timeout=10)
         data = response.json()
 
@@ -147,7 +166,7 @@ class Bridge(object):
             if 'success' in result:
                 resource = result['success']
                 resource_url, resource_value = list(resource.items())[0]
-                attribute = parse_attribute_from_url(resource_url)
+                attribute = utils.parse_attribute_from_url(resource_url)
                 processed_response[attribute] = resource_value
             else:
                 error = result['error']
