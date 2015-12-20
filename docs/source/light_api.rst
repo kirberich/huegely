@@ -21,7 +21,7 @@ The different lights inherit from a common base class called ``Light`` and their
     light.darker(54)       # Brightness is now 200
     light.darker(200)      # Light is now off
 
-    light.set_state(on=True, bri=100)
+    light.set_state(on=True, brightness=100)
 
     # This will raise an error, dimmers don't support setting hue values.
     light.set_state(hue=0)
@@ -30,11 +30,11 @@ The different lights inherit from a common base class called ``Light`` and their
 **ExtendedColorLight Example**::
 
     # Set light to bright red
-    light.set_state(on=True, bri=255, hue=0, sat=255)
+    light.set_state(on=True, brightness=255, hue=0, saturation=255)
 
     # Some requests are inherently impossible. This won't raise an error, but only 
     # the color temperature setting will have an effect. (Color temperature has a higher priority than color.)
-    light.set_state(hue=0, ct=500)
+    light.set_state(hue=0, temperature=500)
 
 .. toctree::
    :maxdepth: 2

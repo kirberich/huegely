@@ -81,8 +81,8 @@ Once you have a light object, you can either get/set attributes one at a time, o
 
     # Get the current state of the light
     light.state()
-    {'colormode': 'ct', 'reachable': True, 'effect': 'none', 'hue': 12510, 'ct': 500, 'on': True, 'alert': 'none', 'sat': 226, 'xy': [0.5268, 0.4133], 'bri': 254}
+    {'color_mode': 'ct', 'is_reachable': True, 'effect': 'none', 'hue': 12510, 'temperature': 500, 'on': True, 'alert': 'none', 'saturation': 226, 'coordinates': [0.5268, 0.4133], 'brightness': 254}
 
     # Set multiple attributes at once
-    light.state(hue=0, bri=255, sat=0, on=True)
-    {'sat': 0, 'hue': 0, 'bri': 254, 'on': True}
+    light.state(hue=0, brightness=255, saturation=0, on=True)
+    {'saturation': 0, 'hue': 0, 'brightness': 254, 'on': True}

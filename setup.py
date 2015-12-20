@@ -12,7 +12,7 @@ AUTHOR = 'Robert Kirberich'
 
 setup(
     name=NAME,
-    version='0.1.0',
+    version='0.1.1',
     packages=PACKAGES,
 
     # metadata for upload to PyPI
