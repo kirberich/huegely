@@ -6,7 +6,6 @@ __all__ = [
     'ExtendedColorLight',
 ]
 
-
 from .devices import (
     Bridge,
     DimmableLight,
