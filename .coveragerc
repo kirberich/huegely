@@ -1,0 +1,11 @@
+[run]
+source =
+    src
+
+omit =
+    /*/tests/*
+
+[report]
+
+[html]
+directory = coverage_html
