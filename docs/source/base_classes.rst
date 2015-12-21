@@ -2,7 +2,7 @@
 Base Classes
 ------------
 
-These are the bases which all light classes are built upon. Each class describes the behaviour of one specific light feature-set, which are mixed and matched in different hue lights.
+These are the bases which all light/group classes are built upon. Each class describes the behaviour of one specific light feature-set, which are mixed and matched in different hue lights.
 
 .. autoclass:: huegely.devices.Light
     :members:
@@ -13,6 +13,16 @@ These are the bases which all light classes are built upon. Each class describes
 
     .. attribute:: light_id
         :annotation:  - Identifier for this light in the hue bridge
+
+.. autoclass:: huegely.groups.Group
+    :members:
+    :undoc-members:
+
+    .. attribute:: bridge
+        :annotation:  - Instance of huegely.Bridge this group belongs to
+
+    .. attribute:: group_id
+        :annotation:  - Identifier for this group in the hue bridge
 
 .. autoclass:: huegely.features.Dimmer
     :members:
