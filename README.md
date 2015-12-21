@@ -12,10 +12,14 @@ To install, run `pip install git+https://github.com/kirberich/huegely.git`.
 ## Testing
 To be able to run the tests (once there any), do the following:
 
- - Create a python 3 virtualenv
- - Clone the repository
+ - Create a python 3 virtualenv called env
  - Run `pip install -r test_requirements.txt`
- - Run `./run_tests.sh`
+
+Using tox:
+ - Run `tox`
+
+Running tests directly:
+ - Run `py.test`
 
 ## Requirements
 Huegely requires python 3.x, for no good reason other than that I'm heartless.
