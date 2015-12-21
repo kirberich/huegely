@@ -13,4 +13,5 @@ This is a basic first release, there are no meaningful tests and the API might c
    basic_usage
    bridge_api
    light_api
+   group_api
    exceptions

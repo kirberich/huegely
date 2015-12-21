@@ -7,7 +7,7 @@ There are four classes for lights: ``DimmableLight``, ``ColorTemperatureLight``,
 The different lights inherit from a common base class called ``Light`` and their appropriate feature sets. See below for a description of the features.
 
 .. NOTE::
-   All API requests will raise a HueError if at least one requested operation fails. There is no concept of transactions with Hue lights, so an error in one operation does not necessarily mean another action isn't applied.
+  All API requests will raise a HueError if at least one requested operation fails. There is no concept of transactions with Hue lights, so an error in one operation does not necessarily mean another action isn't applied.
 
 
 **DimmableLight Example**::
