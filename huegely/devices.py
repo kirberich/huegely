@@ -4,6 +4,7 @@ from requests import request
 from huegely import (
     constants,
     exceptions,
+    groups,
     utils
 )
 from huegely.features import (
@@ -17,7 +18,6 @@ class Light(metaclass=ABCMeta):
     """ Abstract base class for all lights.
         All lights inherit from ``Light`` and any appropriate feature classes.
     """
-    _state_mapping = {}
 
     def __init__(self, bridge, light_id, name=None):
         if type(self) is Light:
@@ -91,6 +91,7 @@ class Light(metaclass=ABCMeta):
     def is_reachable(self):
         """ Returns True if the light is currently reachable, False otherwise. """
         return self._set_state('is_reachable')['is_reachable']
+
 
 class DimmableLight(Dimmer, Light):
     pass
@@ -190,9 +191,20 @@ class Bridge(object):
         """ Gets all light objects for this bridge, sorted by their light_id. """
         data = self.make_request('lights')
 
-        lights = []
+        found_lights = []
         for light_id, light_data in data.items():
             light_type = LIGHT_TYPES[light_data['type']]
-            lights.append(light_type(bridge=self, light_id=light_id, name=light_data['name']))
+            found_lights.append(light_type(bridge=self, light_id=int(light_id), name=light_data['name']))
 
-        return sorted(lights, key=lambda l: l.light_id)
+        return sorted(found_lights, key=lambda l: l.light_id)
+
+    def groups(self):
+        """ Gets all group objects for this bridge, sorted by their group_id. """
+        data = self.make_request('groups')
+
+        found_groups = []
+        for group_id, group_data in data.items():
+            group_type = groups.get_group_type(group_data['action'])
+            found_groups.append(group_type(bridge=self, group_id=int(group_id), name=group_data['name']))
+
+        return sorted(found_groups, key=lambda l: l.group_id)

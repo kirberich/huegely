@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.1.2
+ - Add support for groups
+
 ## Version 0.1.1
  - All light attributes now use consistent naming (e.g. brightness instead of bri)
  - Added color coordinate, color_mode, is_reachable, alert and effect attributes; all light state attributes offered by the hue api are now present.

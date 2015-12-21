@@ -4,7 +4,7 @@ from . import exceptions
 
 
 class Dimmer(metaclass=ABCMeta):
-    """ Abstract base class for lights that allow dimming (which is all Hue lights currently being sold.) """
+    """ Abstract base class for devices that allow dimming (which is all Hue devices currently being sold.) """
 
     def _set_state(self, **state):
         """ Attribute names in *state* are mapped between how huegely names them and hue API ones.
@@ -18,22 +18,34 @@ class Dimmer(metaclass=ABCMeta):
             increase = state.pop('brighter')
             state['bri_inc'] = increase
 
-        return super(Dimmer, self)._set_state(**state)
+        response = super(Dimmer, self)._set_state(**state)
+
+        # The groups endpoint for updating state behaves differently to the lights one when it comes to
+        # the brighter/darker commands. Instead of returning the new brightness, it instead returns the
+        # requested value directly, e.g. {'bri_inc': 10} instead of {'brightness': 240}.
+        # Because of that, we need to make another request to have consistent behaviour.
+
+        if 'bri_inc' in response:
+            extra_state = self.state()
+            response.pop('bri_inc')
+            response['brightness'] = extra_state['brightness']
+
+        return response
 
     def on(self):
-        """ Turns light on. Returns new state (*True*). """
+        """ Turns light(s) on. Returns new state (*True*). """
         return self.state(on=True)['on']
 
     def off(self):
-        """ Turns light off. Returns new state (*False*). """
+        """ Turns light(s) off. Returns new state (*False*). """
         return self.state(on=False)['on']
 
     def is_on(self):
-        """ Returns True if the light is on, False otherwise. """
+        """ Returns True if the light(s) is on, False otherwise. """
         return self.state()['on']
 
     def brighter(self, step=25):
-        """ Makes the lamp gradually brighter. Turns the light on if it was off before.
+        """ Makes the light(s) gradually brighter. Turns light on if necessary.
 
             Returns new brightness value.
         """
@@ -47,7 +59,7 @@ class Dimmer(metaclass=ABCMeta):
             raise
 
     def darker(self, step=25):
-        """ Makes the light gradually darker. Turns off the lamp if the brightness goes down to 0.
+        """ Makes the light(s) gradually darker. Turns off if the brightness goes down to 0.
 
             Returns the new brightness value.
         """
