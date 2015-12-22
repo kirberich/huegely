@@ -1,0 +1,18 @@
+language: python
+python: 3.5
+sudo: false
+
+before_install:
+  - pip install codecov
+  - pip install -r test_requirements.txt
+after_success:
+  - codecov
+
+env:
+  - TOX_ENV=py35
+
+script: tox -e $TOX_ENV
+
+branches:
+  only:
+    - master
