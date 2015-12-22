@@ -90,7 +90,7 @@ class Light(metaclass=ABCMeta):
 
     def is_reachable(self):
         """ Returns True if the light is currently reachable, False otherwise. """
-        return self._set_state('is_reachable')['is_reachable']
+        return self._get_state()['is_reachable']
 
 
 class DimmableLight(Dimmer, Light):
