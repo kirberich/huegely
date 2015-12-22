@@ -2,7 +2,7 @@ import unittest
 import mock
 
 from huegely import (
-    devices,
+    bridge,
     groups,
     utils
 )
@@ -15,12 +15,8 @@ from . import (
 
 class GroupTests(unittest.TestCase):
     def setUp(self):
-        self.fake_bridge = devices.Bridge('127.0.0.1', 'fake_token')
+        self.fake_bridge = bridge.Bridge('127.0.0.1', 'fake_token')
         self.ex_color_group = groups.ExtendedColorGroup(self.fake_bridge, 1)
-
-    def test_group_is_abstract(self):
-        with self.assertRaises(TypeError):
-            groups.Group(self.fake_bridge, 1)
 
     def test_repr(self):
         group = groups.DimmableGroup(self.fake_bridge, 1)
@@ -42,7 +38,7 @@ class GroupTests(unittest.TestCase):
         group._name = 'some name'
         self.assertEqual(str(group), 'some name')
 
-    @mock.patch('huegely.devices.request')
+    @mock.patch('huegely.bridge.request')
     def test_brighter(self, mock_request):
         # Brighter/darker require two api requests because the new brightness isn't returned by the first request
         def side_effect(*args, **kwargs):
@@ -54,7 +50,7 @@ class GroupTests(unittest.TestCase):
 
         self.assertEqual(self.ex_color_group.brighter(10), 254)
 
-    @mock.patch('huegely.devices.request')
+    @mock.patch('huegely.bridge.request')
     def test_darker(self, mock_request):
         # Brighter/darker require two api requests because the new brightness isn't returned by the first request
         def side_effect(*args, **kwargs):
@@ -67,7 +63,7 @@ class GroupTests(unittest.TestCase):
         self.assertEqual(self.ex_color_group.darker(10), 254)
 
 
-    @mock.patch('huegely.devices.request')
+    @mock.patch('huegely.bridge.request')
     def test_lights(self, mock_request):
 
         # Getting lights from a group requires two api requests: one to get the list of lights for the group,
@@ -84,7 +80,7 @@ class GroupTests(unittest.TestCase):
         lights = group.lights()
         self.assertEqual([2], [light.light_id for light in lights])
 
-    @mock.patch('huegely.devices.request', return_value=test_utils.MockResponse([{"success": {"brightness": 200}}]))
+    @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse([{"success": {"brightness": 200}}]))
     def test_state(self, mock_request):
         # Set state
         self.assertEqual(self.ex_color_group.state(brightness=200), {'brightness': 200})
@@ -93,11 +89,11 @@ class GroupTests(unittest.TestCase):
         mock_request.return_value = test_utils.MockResponse(fake_data.BRIDGE_GROUPS['1'])
         self.assertEqual(self.ex_color_group.state(), utils.hue_to_huegely_names(fake_data.BRIDGE_GROUPS['1']['action']))
 
-    @mock.patch('huegely.devices.request', return_value=test_utils.MockResponse(fake_data.BRIDGE_GROUPS['1']))
+    @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse(fake_data.BRIDGE_GROUPS['1']))
     def test_get_name(self, mock_request):
         self.assertEqual(self.ex_color_group.name(), fake_data.BRIDGE_GROUPS['1']['name'])
 
-    @mock.patch('huegely.devices.request', return_value=test_utils.MockResponse([{"success": {"name": "new_name"}}]))
+    @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse([{"success": {"name": "new_name"}}]))
     def test_set_name(self, mock_request):
         self.assertEqual(self.ex_color_group.name('new_name'), 'new_name')
 

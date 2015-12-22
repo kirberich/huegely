@@ -6,8 +6,8 @@ __all__ = [
     'ExtendedColorLight',
 ]
 
-from .devices import (
-    Bridge,
+from huegely.bridge import Bridge
+from huegely.lights import (
     DimmableLight,
     ColorLight,
     ColorTemperatureLight,

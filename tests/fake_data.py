@@ -1,7 +1,3 @@
-import re
-from .test_utils import MockResponse
-
-
 BRIDGE_CONF = {
     'UTC': '2015-12-21T22:09:34',
     'apiversion': '1.11.0',

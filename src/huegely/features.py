@@ -1,9 +1,7 @@
-from abc import ABCMeta
-
 from . import exceptions
 
 
-class Dimmer(metaclass=ABCMeta):
+class Dimmer(object):
     """ Abstract base class for devices that allow dimming (which is all Hue devices currently being sold.) """
 
     def _set_state(self, **state):
@@ -129,7 +127,7 @@ class Dimmer(metaclass=ABCMeta):
         return self._set_alert(alert=alert) if alert is not None else self._get_alert()
 
 
-class ColorController(metaclass=ABCMeta):
+class ColorController(object):
     """ Abstract base class for colored lights. """
 
     def _set_coordinates(self, coordinates):
@@ -229,7 +227,7 @@ class ColorController(metaclass=ABCMeta):
         return self.state()['color_mode']
 
 
-class TemperatureController(metaclass=ABCMeta):
+class TemperatureController(object):
     """ Abstract base class for lights that allow setting a color temperature for their white light. """
 
     def _set_temperature(self, temperature):

@@ -2,7 +2,8 @@ import unittest
 import mock
 
 from huegely import (
-    devices,
+    bridge,
+    lights,
     exceptions
 )
 
@@ -14,15 +15,11 @@ from . import (
 
 class LightTests(unittest.TestCase):
     def setUp(self):
-        self.fake_bridge = devices.Bridge('127.0.0.1', 'fake_token')
-        self.ex_color_light = devices.ExtendedColorLight(self.fake_bridge, 1)
-
-    def test_light_is_abstract(self):
-        with self.assertRaises(TypeError):
-            devices.Light(self.fake_bridge, 1)
+        self.fake_bridge = bridge.Bridge('127.0.0.1', 'fake_token')
+        self.ex_color_light = lights.ExtendedColorLight(self.fake_bridge, 1)
 
     def test_repr(self):
-        light = devices.DimmableLight(self.fake_bridge, 1)
+        light = lights.DimmableLight(self.fake_bridge, 1)
 
         # Without name assigned
         self.assertEqual(repr(light), 'DimmableLight (unknown name) (id: 1)')
@@ -32,7 +29,7 @@ class LightTests(unittest.TestCase):
         self.assertEqual(repr(light), 'DimmableLight some name (id: 1)')
 
     def test_str(self):
-        light = devices.DimmableLight(self.fake_bridge, 1)
+        light = lights.DimmableLight(self.fake_bridge, 1)
 
         # Without name assigned
         self.assertEqual(str(light), '(unknown name)')
@@ -41,7 +38,7 @@ class LightTests(unittest.TestCase):
         light._name = 'some name'
         self.assertEqual(str(light), 'some name')
 
-    @mock.patch('huegely.devices.request', return_value=test_utils.MockResponse(fake_data.BRIDGE_LIGHTS['1']))
+    @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse(fake_data.BRIDGE_LIGHTS['1']))
     def test_get_state(self, mock_request):
         state = self.ex_color_light.state()
 
@@ -49,7 +46,7 @@ class LightTests(unittest.TestCase):
         self.assertTrue('brightness' in state)
         self.assertFalse('bri' in state)
 
-    @mock.patch('huegely.devices.request')
+    @mock.patch('huegely.bridge.request')
     def test_set_state(self, mock_request):
         mock_request.return_value = test_utils.MockResponse([{"success": {"bri": 254}}])
 
@@ -57,19 +54,19 @@ class LightTests(unittest.TestCase):
 
         self.assertEqual(state['brightness'], 254)
 
-    @mock.patch('huegely.devices.request', return_value=test_utils.MockResponse(fake_data.BRIDGE_LIGHTS['1']))
+    @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse(fake_data.BRIDGE_LIGHTS['1']))
     def test_get_name(self, mock_request):
         self.assertEqual(self.ex_color_light.name(), fake_data.BRIDGE_LIGHTS['1']['name'])
 
-    @mock.patch('huegely.devices.request', return_value=test_utils.MockResponse([{"success": {"name": "new_name"}}]))
+    @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse([{"success": {"name": "new_name"}}]))
     def test_set_name(self, mock_request):
         self.assertEqual(self.ex_color_light.name('new_name'), 'new_name')
 
-    @mock.patch('huegely.devices.request', return_value=test_utils.MockResponse(fake_data.BRIDGE_LIGHTS['1']))
+    @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse(fake_data.BRIDGE_LIGHTS['1']))
     def test_is_reachable(self, mock_request):
         self.assertEqual(self.ex_color_light.is_reachable(), fake_data.BRIDGE_LIGHTS['1']['state']['reachable'])
 
-    @mock.patch('huegely.devices.request', return_value=test_utils.MockResponse([{"success": {"brightness": 254}}]))
+    @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse([{"success": {"brightness": 254}}]))
     def test_brighter(self, mock_request):
         # light is already on
         self.assertEqual(self.ex_color_light.brighter(), 254)
@@ -92,7 +89,7 @@ class LightTests(unittest.TestCase):
         with self.assertRaises(exceptions.HueError):
             self.ex_color_light.brighter()
 
-    @mock.patch('huegely.devices.request', return_value=test_utils.MockResponse([{"success": {"brightness": 200}}]))
+    @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse([{"success": {"brightness": 200}}]))
     def test_darker(self, mock_request):
         # light is on
         self.assertEqual(self.ex_color_light.darker(), 200)
@@ -112,7 +109,7 @@ class LightTests(unittest.TestCase):
             self.ex_color_light.darker()
             self.assertTrue(self.ex_color_light.off.called)
 
-    @mock.patch('huegely.devices.request', return_value=test_utils.MockResponse([{"success": {"brightness": 200}}]))
+    @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse([{"success": {"brightness": 200}}]))
     def test_brightness(self, mock_request):
         # Set brightness
         self.assertEqual(self.ex_color_light.brightness(200), 200)
@@ -130,19 +127,19 @@ class LightTests(unittest.TestCase):
         with self.assertRaises(exceptions.HueError):
             self.ex_color_light.brightness(200)
 
-    @mock.patch('huegely.devices.request', return_value=test_utils.MockResponse([{"success": {"on": True}}]))
+    @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse([{"success": {"on": True}}]))
     def test_on(self, mock_request):
         self.assertEqual(self.ex_color_light.on(), True)
 
-    @mock.patch('huegely.devices.request', return_value=test_utils.MockResponse([{"success": {"on": False}}]))
+    @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse([{"success": {"on": False}}]))
     def test_off(self, mock_request):
         self.assertEqual(self.ex_color_light.off(), False)
 
-    @mock.patch('huegely.devices.request', return_value=test_utils.MockResponse(fake_data.BRIDGE_LIGHTS['1']))
+    @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse(fake_data.BRIDGE_LIGHTS['1']))
     def test_is_on(self, mock_request):
         self.assertEqual(self.ex_color_light.is_on(), True)
 
-    @mock.patch('huegely.devices.request', return_value=test_utils.MockResponse([{"success": {"alert": 'select'}}]))
+    @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse([{"success": {"alert": 'select'}}]))
     def test_alert(self, mock_request):
         # Set alert
         self.assertEqual(self.ex_color_light.alert('select'), 'select')
@@ -155,7 +152,7 @@ class LightTests(unittest.TestCase):
         with self.assertRaises(exceptions.HueError):
             self.ex_color_light.alert('invalid')
 
-    @mock.patch('huegely.devices.request', return_value=test_utils.MockResponse([{"success": {"coordinates": [0.5, 0.5]}}]))
+    @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse([{"success": {"coordinates": [0.5, 0.5]}}]))
     def test_coordinates(self, mock_request):
         # Set coordinates
         self.assertEqual(self.ex_color_light.coordinates([0.5, 0.5]), [0.5, 0.5])
@@ -164,7 +161,7 @@ class LightTests(unittest.TestCase):
         mock_request.return_value = test_utils.MockResponse(fake_data.BRIDGE_LIGHTS['1'])
         self.assertEqual(self.ex_color_light.coordinates(), [0.5, 0.5])
 
-    @mock.patch('huegely.devices.request', return_value=test_utils.MockResponse([{"success": {"hue": 14678}}]))
+    @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse([{"success": {"hue": 14678}}]))
     def test_hue(self, mock_request):
         # Set hue
         self.assertEqual(self.ex_color_light.hue(14678), 14678)
@@ -173,7 +170,7 @@ class LightTests(unittest.TestCase):
         mock_request.return_value = test_utils.MockResponse(fake_data.BRIDGE_LIGHTS['1'])
         self.assertEqual(self.ex_color_light.hue(), 14678)
 
-    @mock.patch('huegely.devices.request', return_value=test_utils.MockResponse([{"success": {"saturation": 254}}]))
+    @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse([{"success": {"saturation": 254}}]))
     def test_saturation(self, mock_request):
         # Set saturation
         self.assertEqual(self.ex_color_light.saturation(254), 254)
@@ -182,7 +179,7 @@ class LightTests(unittest.TestCase):
         mock_request.return_value = test_utils.MockResponse(fake_data.BRIDGE_LIGHTS['1'])
         self.assertEqual(self.ex_color_light.saturation(), 254)
 
-    @mock.patch('huegely.devices.request', return_value=test_utils.MockResponse([{"success": {"effect": 'colorloop'}}]))
+    @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse([{"success": {"effect": 'colorloop'}}]))
     def test_effect(self, mock_request):
         # Set effect
         self.assertEqual(self.ex_color_light.effect('colorloop'), 'colorloop')
@@ -195,11 +192,11 @@ class LightTests(unittest.TestCase):
         with self.assertRaises(exceptions.HueError):
             self.ex_color_light.effect('invalid')
 
-    @mock.patch('huegely.devices.request', return_value=test_utils.MockResponse(fake_data.BRIDGE_LIGHTS['1']))
+    @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse(fake_data.BRIDGE_LIGHTS['1']))
     def test_color_mode(self, mock_request):
         self.assertEqual(self.ex_color_light.color_mode(), 'hs')
 
-    @mock.patch('huegely.devices.request', return_value=test_utils.MockResponse([{"success": {"temperature": 154}}]))
+    @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse([{"success": {"temperature": 154}}]))
     def test_temperature(self, mock_request):
         # Set temperature
         self.assertEqual(self.ex_color_light.temperature(100), 154)

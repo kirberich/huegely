@@ -1,18 +1,13 @@
-from abc import ABCMeta
-
 from huegely import (
     features,
     utils,
 )
 
 
-class Group(metaclass=ABCMeta):
+class Group(object):
     _identifier_actions = []  # Minimum set of group actions required to identify the group type
 
     def __init__(self, bridge, group_id, name=None):
-        if type(self) is Group:
-            raise TypeError("Base class 'Group' should never be instantiated directly.")
-
         self.bridge = bridge
         self.group_id = group_id
         self.group_url = 'groups/{}'.format(group_id)
