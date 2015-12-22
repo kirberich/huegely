@@ -2,6 +2,8 @@
 
 ## Version 0.1.2
  - Add support for groups
+ - Add a (somewhat hacky) test setup
+ - Add coverage tests
 
 ## Version 0.1.1
  - All light attributes now use consistent naming (e.g. brightness instead of bri)
