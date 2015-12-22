@@ -78,7 +78,7 @@ class GroupTests(unittest.TestCase):
         # Group for has one light (DimmableLight with id 4)
         group = groups.DimmableGroup(self.fake_bridge, 3)
         lights = group.lights()
-        self.assertEqual([2], [light.light_id for light in lights])
+        self.assertEqual([2], [light.device_id for light in lights])
 
     @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse([{"success": {"brightness": 200}}]))
     def test_state(self, mock_request):

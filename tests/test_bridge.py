@@ -52,10 +52,10 @@ class BridgeTests(unittest.TestCase):
     @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse(fake_data.BRIDGE_LIGHTS))
     def test_lights(self, mock_request):
         bridge = Bridge('192.168.1.2', 'fake_token')
-        self.assertEqual([1, 2], [light.light_id for light in bridge.lights()])
+        self.assertEqual([1, 2], [light.device_id for light in bridge.lights()])
 
     @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse(fake_data.BRIDGE_GROUPS))
     def test_groups(self, mock_request):
         bridge = Bridge('192.168.1.2', 'fake_token')
         groups = bridge.groups()
-        self.assertEqual([1, 2, 3], [group.group_id for group in groups])
+        self.assertEqual([1, 2, 3], [group.device_id for group in groups])

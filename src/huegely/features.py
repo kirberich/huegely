@@ -1,7 +1,74 @@
-from . import exceptions
+from huegely import (
+    exceptions,
+    utils
+)
 
 
-class Dimmer(object):
+class FeatureBase(object):
+    """ Base interface for all features, mostly concerned with device state. """
+    def __repr__(self):
+        return "{} {} (id: {})".format(
+            self.__class__.__name__,
+            self._name or "(unknown name)",
+            self.device_id,
+        )
+
+    def __str__(self):
+        return self._name or "(unknown name)"
+
+    def _set_state(self, **state):
+        url = self.device_url + '/action'
+
+        # Convert huegely-named state attributes to hue api naming scheme
+        state = utils.huegely_to_hue_names(state)
+
+        response = self.bridge.make_request(url, method='PUT', **state)
+
+        # Convert hue api names back to huegely names
+        return utils.hue_to_huegely_names(response)
+
+    def _get_state(self):
+        response = self.bridge.make_request(self.device_url)
+
+        # Whenever the state is received, store the name of the object, because we get it for free.
+        # This could be done in the constructor, making the name always available,
+        # but that would make initialisation extremely expensive.
+        self._name = response.get('name', None) or self._name
+
+        # Convert hue-named state attribute to huegely naming scheme
+        state = utils.hue_to_huegely_names(response[self._state_attribute])
+
+        return state
+
+    def state(self, **state):
+        """ Gets or sets state attributes. Call this without any arguments to get the
+            entire state as reported by the Hue bridge. Note that the state reported by groups
+            is unreliable - the values mostly seem to have no relation to the real lights. It is sometimes necessary
+            to get the state though, especially when using the brighter/darker commands.
+
+            Pass in any amount of state attributes to update them, e.g. on=True, brighter=50.
+
+            Returns a dictionary of successfully updated attributes in the format of ``{'brightness': 100, 'on': True}``
+        """
+        return self._set_state(**state) if state else self._get_state()
+
+    def _get_name(self):
+        """ Returns the current name of the group """
+        return self.bridge.make_request(self.device_url)['name']
+
+    def _set_name(self, name):
+        """ Set a new name for the group and returns the new name. """
+        return self.bridge.make_request(self.device_url, method='PUT', name=name)['name']
+
+    def name(self, name=None):
+        """ Gets or sets the current name of the group. If called without *name* argument, returns the current group name.
+
+            If called with a name argument, sets and returns the new name of the group.
+        """
+        return self._set_name(name=name) if name is not None else self._get_name()
+
+
+class Dimmer(FeatureBase):
     """ Abstract base class for devices that allow dimming (which is all Hue devices currently being sold.) """
 
     def _set_state(self, **state):
@@ -127,7 +194,7 @@ class Dimmer(object):
         return self._set_alert(alert=alert) if alert is not None else self._get_alert()
 
 
-class ColorController(object):
+class ColorController(FeatureBase):
     """ Abstract base class for colored lights. """
 
     def _set_coordinates(self, coordinates):
@@ -227,7 +294,7 @@ class ColorController(object):
         return self.state()['color_mode']
 
 
-class TemperatureController(object):
+class TemperatureController(FeatureBase):
     """ Abstract base class for lights that allow setting a color temperature for their white light. """
 
     def _set_temperature(self, temperature):

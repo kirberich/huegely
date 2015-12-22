@@ -79,23 +79,23 @@ class Bridge(object):
         return self._set_name(name=name) if name is not None else self._get_name()
 
     def lights(self):
-        """ Gets all light objects for this bridge, sorted by their light_id. """
+        """ Gets all light objects for this bridge, sorted by their device_id. """
         data = self.make_request('lights')
 
         found_lights = []
-        for light_id, light_data in data.items():
+        for device_id, light_data in data.items():
             light_type = LIGHT_TYPES[light_data['type']]
-            found_lights.append(light_type(bridge=self, light_id=int(light_id), name=light_data['name']))
+            found_lights.append(light_type(bridge=self, device_id=int(device_id), name=light_data['name']))
 
-        return sorted(found_lights, key=lambda l: l.light_id)
+        return sorted(found_lights, key=lambda l: l.device_id)
 
     def groups(self):
-        """ Gets all group objects for this bridge, sorted by their group_id. """
+        """ Gets all group objects for this bridge, sorted by their device_id. """
         data = self.make_request('groups')
 
         found_groups = []
-        for group_id, group_data in data.items():
+        for device_id, group_data in data.items():
             group_type = groups.get_group_type(group_data['action'])
-            found_groups.append(group_type(bridge=self, group_id=int(group_id), name=group_data['name']))
+            found_groups.append(group_type(bridge=self, device_id=int(device_id), name=group_data['name']))
 
-        return sorted(found_groups, key=lambda l: l.group_id)
+        return sorted(found_groups, key=lambda l: l.device_id)
