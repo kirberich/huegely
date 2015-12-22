@@ -1,4 +1,4 @@
-# Huegely
+# Huegely [![Build Status](https://travis-ci.org/kirberich/huegely.svg?branch=master)](https://travis-ci.org/kirberich/huegely) [![codecov.io](https://codecov.io/github/kirberich/huegely/coverage.svg?branch=master)](https://codecov.io/github/kirberich/huegely?branch=master)
 Huegely is a simple python library to control Philips Hue lights. It mirrors data from the hue bridge transparently, not attempting to do any caching, keeping of state, or similar.
 
 ## Features
