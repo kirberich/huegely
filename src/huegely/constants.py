@@ -6,7 +6,8 @@ HUEGELY_TO_HUE_MAPPING = {
     'temperature': 'ct',
     'is_reachable': 'reachable',
     'coordinates': 'xy',
-    'color_mode': 'colormode'
+    'color_mode': 'colormode',
+    'transition_time': 'transitiontime',
 }
 
 # Maps hue attribute names to huegely ones (reverse mapping of the above)

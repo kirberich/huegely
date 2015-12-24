@@ -9,10 +9,13 @@ from huegely.lights import LIGHT_TYPES
 
 
 class Bridge(object):
-    def __init__(self, ip, username=None):
+    def __init__(self, ip, username=None, transition_time=None):
         self.ip = ip
         self.username = username
         self.base_url = 'http://{}/api/{}/'.format(ip, username)
+
+        # Global transition time. If set, this is applied to all actions on this bridge.
+        self.transition_time = transition_time
 
     def get_token(self, app_identifier):
         """ Gets a new authorisation token. Use this token to initialize a bridge object.
@@ -41,25 +44,29 @@ class Bridge(object):
             If any updates fail, a HueError is raised.
         """
         url = full_url or self.base_url + path
-
         response = request(method, url, json=data, timeout=10)
-        data = response.json()
+        response_data = response.json()
+
+        if not response_data:
+            raise exceptions.HueError(
+                'Something unexpected happened and the API returned nothing, not even an error. Data: {}'.format(data)
+            )
 
         # Get requests generally return flat and directly usable data, unless an error occured.
         # If an error occurred on a get request, follow the usual POST/GET processing logic
         if method == 'GET' and (type(response) != list or not any(['error' in result for result in response])):
-            return data
+            return response_data
 
         # POST/PUT API requests return lists of success/error responses and no helpful status codes.
         # We process the success responses into a single dictionary of updated attributes
         # e.g. {'bri': 100, 'on': True}
         processed_response = {}
-        for result in data:
+        for result in response_data:
             if 'success' in result:
-                resource = result['success']
-                resource_url, resource_value = list(resource.items())[0]
-                attribute = utils.parse_attribute_from_url(resource_url)
-                processed_response[attribute] = resource_value
+                resources = result['success']
+                for resource_url, resource_value in resources.items():
+                    attribute = utils.parse_attribute_from_url(resource_url)
+                    processed_response[attribute] = resource_value
             else:
                 error = result['error']
                 raise exceptions.HueError(error['description'], error['type'], device=self)
@@ -85,7 +92,14 @@ class Bridge(object):
         found_lights = []
         for device_id, light_data in data.items():
             light_type = LIGHT_TYPES[light_data['type']]
-            found_lights.append(light_type(bridge=self, device_id=int(device_id), name=light_data['name']))
+            found_lights.append(
+                light_type(
+                    bridge=self,
+                    device_id=int(device_id),
+                    name=light_data['name'],
+                    transition_time=self.transition_time
+                )
+            )
 
         return sorted(found_lights, key=lambda l: l.device_id)
 
@@ -96,6 +110,13 @@ class Bridge(object):
         found_groups = []
         for device_id, group_data in data.items():
             group_type = groups.get_group_type(group_data['action'])
-            found_groups.append(group_type(bridge=self, device_id=int(device_id), name=group_data['name']))
+            found_groups.append(
+                group_type(
+                    bridge=self,
+                    device_id=int(device_id),
+                    name=group_data['name'],
+                    transition_time=self.transition_time
+                )
+            )
 
         return sorted(found_groups, key=lambda l: l.device_id)

@@ -4,16 +4,10 @@ from huegely import (
 )
 
 
-class Group(object):
+class Group(features.FeatureBase):
     _identifier_actions = []  # Minimum set of group actions required to identify the group type
     _state_attribute = 'action'
-
-    def __init__(self, bridge, device_id, name=None):
-        self.bridge = bridge
-        self.device_id = device_id
-        self.device_url = 'groups/{}'.format(device_id)
-
-        self._name = name
+    _device_url_prefix = 'groups'
 
     def lights(self):
         """ Returns all lights that belong to this group. """

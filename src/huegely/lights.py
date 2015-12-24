@@ -1,25 +1,17 @@
-from huegely import (
-    utils
-)
 from huegely.features import (
+    FeatureBase,
     Dimmer,
     ColorController,
     TemperatureController,
 )
 
 
-class Light(object):
+class Light(FeatureBase):
     """ Abstract base class for all lights.
         All lights inherit from ``Light`` and any appropriate feature classes.
     """
     _state_attribute = 'state'
-
-    def __init__(self, bridge, device_id, name=None):
-        self.bridge = bridge
-        self.device_id = device_id
-        self.device_url = 'lights/{}'.format(device_id)
-
-        self._name = name
+    _device_url_prefix = 'lights'
 
     def is_reachable(self):
         """ Returns True if the light is currently reachable, False otherwise. """

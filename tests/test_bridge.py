@@ -39,6 +39,17 @@ class BridgeTests(unittest.TestCase):
         response = bridge.make_request('some_path')
         self.assertEqual(data, response)
 
+    @mock.patch('huegely.bridge.request')
+    def test_make_request_empty_response_error(self, mock_request):
+        """ Empty responses from the hue api mean something unexpected went wrong, so we raise an error.
+        """
+        data = []
+
+        mock_request.return_value = test_utils.MockResponse(data)
+        bridge = Bridge('192.168.1.2', 'fake_token')
+        with self.assertRaises(exceptions.HueError):
+            bridge.make_request('some_path')
+
     @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse(fake_data.BRIDGE_CONF))
     def test_get_name(self, mock_request):
         bridge = Bridge('192.168.1.2', 'fake_token')

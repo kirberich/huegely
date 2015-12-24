@@ -48,9 +48,9 @@ class LightTests(unittest.TestCase):
 
     @mock.patch('huegely.bridge.request')
     def test_set_state(self, mock_request):
-        mock_request.return_value = test_utils.MockResponse([{"success": {"bri": 254}}])
+        mock_request.return_value = test_utils.MockResponse([{"success": {"bri": 254, "on": True}}])
 
-        state = self.ex_color_light.state(brightness=254)
+        state = self.ex_color_light.state(brightness=254, on=True)
 
         self.assertEqual(state['brightness'], 254)
 
@@ -126,6 +126,46 @@ class LightTests(unittest.TestCase):
         mock_request.return_value = test_utils.MockResponse([{"error": {"type": 0, "address": "don't care", "description": "Don't care"}}])
         with self.assertRaises(exceptions.HueError):
             self.ex_color_light.brightness(200)
+
+    @mock.patch('huegely.bridge.request')
+    def test_transition_time(self, mock_request):
+        mock_request.return_value = test_utils.MockResponse([{"success": {"bri": 200, "transitiontime": 1}}])
+
+        self.assertEqual(self.ex_color_light.brightness(200, transition_time=0.1), 200)
+
+        self.assertEqual(
+            self.ex_color_light.state(brightness=200, transition_time=0.1),
+            {'brightness': 200, 'transition_time': 1}
+        )
+
+    @mock.patch('huegely.bridge.request')
+    def test_transition_brightness_reset(self, mock_request):
+        """ Test handling of the brightness reset bug that occurs when turning off a light with a transition specified. """
+        # First call requests the current brightness
+        # Second call turns light off
+        def side_effect(*args, **kwargs):
+            def second_call(*args, **kwargs):
+                return test_utils.MockResponse([{'success': {'on': False}}])
+            mock_request.side_effect = second_call
+            return test_utils.MockResponse(fake_data.BRIDGE_LIGHTS['1'])
+        mock_request.side_effect = side_effect
+
+        self.assertIsNone(self.ex_color_light._reset_brightness_to)
+        self.ex_color_light.off(transition_time=0)
+        self.assertEqual(self.ex_color_light._reset_brightness_to, fake_data.BRIDGE_LIGHTS['1']['state']['bri'])
+
+        # Turn light back on
+        # First call returns on state (False)
+        # Second call turns light on
+        def side_effect(*args, **kwargs):
+            def second_call(*args, **kwargs):
+                return test_utils.MockResponse([{'success': {'on': True}}])
+            mock_request.side_effect = second_call
+            return test_utils.MockResponse({'state': {'on': False}})
+        mock_request.side_effect = side_effect
+
+        self.ex_color_light.on()
+        self.assertIsNone(self.ex_color_light._reset_brightness_to)
 
     @mock.patch('huegely.bridge.request', return_value=test_utils.MockResponse([{"success": {"on": True}}]))
     def test_on(self, mock_request):
