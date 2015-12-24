@@ -1,7 +1,7 @@
 # Changelog
 
 ## Version 0.1.3
- - Add support transition times
+ - Add support for transition times
 
 ## Version 0.1.2
  - Add support for groups
