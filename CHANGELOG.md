@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.1.3
+ - Add support transition times
+
 ## Version 0.1.2
  - Add support for groups
  - Add a (somewhat hacky) test setup
