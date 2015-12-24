@@ -17,7 +17,7 @@ The hue API supports setting transition times per operation, but not globally. H
 .. NOTE::
   The hue API uses decaseconds for transition-times, but huegely uses seconds because I feel silly saying decasecond.
 
-1. Set a default transition time on the bridge:
+1. Set a default transition time on the bridge::
 
     bridge.transition_time = 5
     light.brightness(10) # 5s
