@@ -22,12 +22,12 @@ Huegely is heavily inspired by https://github.com/studioimaginaire/phue. The log
 To install, run `pip install git+https://github.com/kirberich/huegely.git`.
 
 ## Testing
-To be able to run the tests (once there any), do the following:
+To be able to run the tests, do the following:
 
  - Create a python 3 virtualenv called env
  - Run `pip install -r test_requirements.txt`
 
-Using tox:
+Using tox, which will also generate a coverage report:
  - Run `tox`
 
 Running tests directly:
@@ -36,7 +36,7 @@ Running tests directly:
 ## Requirements
 Huegely requires python 3.x, for no good reason other than that I'm heartless.
 
-The only other requirements is the `requests` library.
+The only other requirement is the `requests` library.
 
 ## Documentation
 Documentation can be found at https://huegely.readthedocs.org/
