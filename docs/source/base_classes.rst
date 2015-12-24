@@ -4,7 +4,7 @@ Base Classes
 
 These are the bases which all light/group classes are built upon. Each class describes the behaviour of one specific light feature-set, which are mixed and matched in different hue lights.
 
-.. autoclass:: huegely.devices.Light
+.. autoclass:: huegely.lights.Light
     :members:
     :undoc-members:
 

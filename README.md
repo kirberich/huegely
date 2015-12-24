@@ -16,7 +16,7 @@ Huegely is a simple python library to control Philips Hue lights. It mirrors dat
  - Having some kind of server (it's written to be used by apps and servers and things, not to be one).
 
 ## Acknowledgements
-Huegely is heavily inspired by https://github.com/studioimaginaire/phue.
+Huegely is heavily inspired by https://github.com/studioimaginaire/phue. The logic for dealing with the hue API transition time bug especially is mostly taken from phue, many thanks for dealing with that!
 
 ## Installation
 To install, run `pip install git+https://github.com/kirberich/huegely.git`.

@@ -13,6 +13,7 @@ Most huegely commands use a single API request, but some use two.
    :caption: Contents
 
    basic_usage
+   transition_times
    bridge_api
    light_api
    group_api
