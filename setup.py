@@ -19,7 +19,7 @@ AUTHOR = 'Robert Kirberich'
 
 setup(
     name=NAME,
-    version='0.1.3',
+    version='0.1.4',
     packages=PACKAGES,
     package_dir={'': 'src'},
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],

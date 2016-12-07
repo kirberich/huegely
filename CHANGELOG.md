@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.1.4
+ - Add support for getting group types
+
 ## Version 0.1.3
  - Add support for transition times
 

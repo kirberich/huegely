@@ -14,6 +14,9 @@ class Group(features.FeatureBase):
         light_ids = [int(light_id) for light_id in self.bridge.make_request(self.device_url)['lights']]
         return [light for light in self.bridge.lights() if light.device_id in light_ids]
 
+    def group_type(self):
+        """ Get the type of group (light group or room) """
+        return self.bridge.make_request(self.device_url)['type']
 
 class DimmableGroup(features.Dimmer, Group):
     _identifier_actions = ['brightness']
