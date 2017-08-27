@@ -6,6 +6,7 @@ from huegely import (
     utils,
 )
 from huegely.lights import LIGHT_TYPES
+from huegely.sensors import SENSOR_TYPES
 
 
 class Bridge(object):
@@ -120,3 +121,25 @@ class Bridge(object):
             )
 
         return sorted(found_groups, key=lambda l: l.device_id)
+
+    def sensors(self):
+        data = self.make_request('sensors')
+
+        found_sensors = []
+        for device_id, sensor_data in data.items():
+            sensor_type = sensor_data['type']
+            if sensor_type not in SENSOR_TYPES:
+                print("Sensor type {} not supported".format(sensor_type))
+                continue
+
+            sensor_type = SENSOR_TYPES[sensor_data['type']]
+            found_sensors.append(
+                sensor_type(
+                    bridge=self,
+                    device_id=int(device_id),
+                    name=sensor_data['name'],
+                    transition_time=self.transition_time
+                )
+            )
+
+        return sorted(found_sensors, key=lambda l: l.device_id)

@@ -8,6 +8,7 @@ HUEGELY_TO_HUE_MAPPING = {
     'coordinates': 'xy',
     'color_mode': 'colormode',
     'transition_time': 'transitiontime',
+    'last_updated': 'lastupdated',
 }
 
 # Maps hue attribute names to huegely ones (reverse mapping of the above)

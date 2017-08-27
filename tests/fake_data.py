@@ -125,3 +125,67 @@ BRIDGE_GROUPS = {
         'type': 'LightGroup'
     }
 }
+
+BRIDGE_SENSORS = {
+    '1': {
+        'config': {
+            'alert': 'none',
+            'battery': 100,
+            'ledindication': False,
+            'on': True,
+            'pending': [],
+            'reachable': True,
+            'usertest': False
+        },
+        'manufacturername': 'Philips',
+        'modelid': 'SML001',
+        'name': 'Hue temperature sensor 1',
+        'state': {
+            'lastupdated': '2017-08-27T19:03:50',
+            'temperature': 2214
+        },
+        'swversion': '6.1.0.18912',
+        'type': 'ZLLTemperature',
+        'uniqueid': '00:00:00:00:00:00:00:00-00'
+    },
+    '2': {
+        'config': {
+            'alert': 'lselect',
+            'battery': 100,
+            'ledindication': False,
+            'on': True,
+            'pending': [],
+            'reachable': True,
+            'sensitivity': 0,
+            'sensitivitymax': 2,
+            'usertest': False
+        },
+        'manufacturername': 'Philips',
+        'modelid': 'SML001',
+        'name': 'Hallway sensor',
+        'state': {
+            'lastupdated': '2017-08-27T18:22:21',
+            'presence': False
+        },
+        'swversion': '6.1.0.18912',
+        'type': 'ZLLPresence',
+        'uniqueid': '00:00:00:00:00:00:00:00-00'
+    },
+    '3': {
+        'config': {
+            'configured': False,
+            'on': True,
+            'sunriseoffset': 30,
+            'sunsetoffset': -30
+        },
+        'manufacturername': 'Philips',
+        'modelid': 'PHDL00',
+        'name': 'Daylight',
+        'state': {
+            'daylight': None,
+            'lastupdated': 'none'
+        },
+        'swversion': '1.0',
+        'type': 'Daylight'
+    },
+}
