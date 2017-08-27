@@ -138,7 +138,7 @@ class Bridge(object):
                     bridge=self,
                     device_id=int(device_id),
                     name=sensor_data['name'],
-                    transition_time=self.transition_time
+                    state=sensor_data['state']
                 )
             )
 
